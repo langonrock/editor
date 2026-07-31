@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <!--
+      The sidecar embeds the Bun runtime, which JITs. Under the Hardened
+      Runtime that notarization requires, a process without these is killed the
+      moment it allocates executable memory. Development builds are not
+      hardened, so leaving them out fails only for users, and only after
+      shipping. See the sidecar notes in the project README.
+    -->
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+  </dict>
+</plist>
