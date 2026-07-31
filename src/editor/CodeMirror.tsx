@@ -37,6 +37,10 @@ export function CodeMirror({ value, readOnly = false, onChange }: Props) {
           keymap.of([...defaultKeymap, ...historyKeymap]),
           markdown(),
           EditorView.lineWrapping,
+          // Until something declares otherwise the base theme applies its light
+          // variant, whose `caret-color: black` is invisible against this app's
+          // background: the caret is there and typing works, but nothing shows.
+          EditorView.darkTheme.of(true),
           EditorState.readOnly.of(readOnly),
           EditorView.updateListener.of(update => {
             if (update.docChanged) {
