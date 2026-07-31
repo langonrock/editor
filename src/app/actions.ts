@@ -3,8 +3,13 @@ import { useCallback, useEffect } from 'react'
 import { buildLocalDsn, buildRemoteDsn } from '../connection/dsn.ts'
 import { createSnapshotPoller } from '../connection/watch.ts'
 import { createSyncScheduler } from '../connection/sync.ts'
+import {
+  canReload,
+  newDocument,
+  openDocument,
+  rebase
+} from '../editor/document.ts'
 import { merge3 } from '../editor/merge.ts'
-import { newDocument, openDocument, rebase } from '../editor/document.ts'
 import { loadSecret, saveSecret } from '../secrets/keychain.ts'
 import { openSession } from '../connection/session.ts'
 import { parseManifest } from '../okf/manifest.ts'
@@ -50,7 +55,58 @@ export function useRefresh({ session, dispatch }: Wiring) {
       // all, which is a normal empty state rather than a connection problem.
       dispatch({ type: 'manifest', rows: [] })
     }
+
+    // Everything on screen now came from the server, so the stale banner has
+    // been answered. Nothing else clears it on this path — `synced` only fires
+    // for a sync this app asked for — and a banner still up after its own
+    // button was pressed reads as a button that does nothing.
+    dispatch({ type: 'stale', stale: false })
   }, [session, dispatch])
+}
+
+async function reopen(
+  live: Session | null,
+  document: EditorDocument | undefined,
+  dispatch: (action: Action) => void
+): Promise<void> {
+  if (live === null || !canReload(document)) {
+    return
+  }
+
+  const found = await live.knowledge.readSource(document.bundle, document.path)
+
+  // Gone from the store rather than changed. The tree already says so, and
+  // closing the pane out from under the reader would hide what it was.
+  if (found !== undefined) {
+    dispatch({
+      type: 'reloaded',
+      document: openDocument(document.bundle, document.path, found)
+    })
+  }
+}
+
+/**
+ * What the banner's button does. `refresh` catches up the tree, the graph and
+ * the banner itself; the open file is the other half, and the half the reader
+ * is actually looking at. Without it the editor keeps showing text the store no
+ * longer holds, against a hash the next save would be refused for.
+ */
+export function useReload(wiring: Wiring, refresh: () => Promise<void>) {
+  const { session, dispatch } = wiring
+
+  return useCallback(
+    async (document?: EditorDocument) => {
+      try {
+        await refresh()
+        await reopen(session.current, document, dispatch)
+      } catch (cause) {
+        // Reload is the one action with no other visible outcome, so a failure
+        // that only rejected a promise would look exactly like success.
+        dispatch({ type: 'notice', notice: messageOf(cause) })
+      }
+    },
+    [session, dispatch, refresh]
+  )
 }
 
 function useAttach(wiring: Wiring, refresh: () => Promise<void>) {

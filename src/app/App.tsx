@@ -73,7 +73,7 @@ export function App() {
         writable={writable}
         stale={state.stale}
         notice={state.notice}
-        onReload={() => void app.refresh()}
+        onReload={() => void app.reload(document)}
         onDismiss={() => dispatch({ type: 'notice' })}
       />
 

@@ -55,6 +55,19 @@ export function isNew(document: EditorDocument): boolean {
   return document.baseHash === undefined
 }
 
+/**
+ * Whether the server's copy may replace what is on screen. An unsaved draft
+ * belongs to the reader, not to the store: replacing one because the folder
+ * moved underneath would throw the edit away silently, while keeping it means
+ * the next save meets the precondition failure and the merge, which is
+ * recoverable.
+ */
+export function canReload(
+  document?: EditorDocument
+): document is EditorDocument {
+  return document !== undefined && !isDirty(document)
+}
+
 export function toWire(document: EditorDocument): string {
   return restoreEol(document.draft, document.eol)
 }

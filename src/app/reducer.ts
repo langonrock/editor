@@ -73,6 +73,7 @@ export type Action =
   | { type: 'manifest'; rows: ManifestRow[] }
   | { type: 'synced'; diagnostics: Diagnostic[] }
   | { type: 'opened'; document: EditorDocument }
+  | { type: 'reloaded'; document: EditorDocument }
   | { type: 'closed' }
   | { type: 'edited'; draft: string }
   | { type: 'saved'; hash: string }
@@ -120,6 +121,12 @@ const HANDLERS = {
     conflict: undefined,
     panel: 'editor'
   }),
+  /**
+   * Unlike `opened`, this leaves the panel alone. The reader did not ask for
+   * the file, the store moved under it, and yanking them out of the graph to
+   * show a document they were not looking at is not an answer to that.
+   */
+  reloaded: (state, action) => ({ ...state, document: action.document }),
   closed: state => ({ ...state, document: undefined, conflict: undefined }),
   edited: (state, action) =>
     state.document === undefined

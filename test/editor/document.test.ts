@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test'
 
 import {
   afterSave,
+  canReload,
   isDirty,
   isNew,
   newDocument,
@@ -46,6 +47,27 @@ describe('newDocument', () => {
 
   test('counts as dirty, so an unsaved new file is never lost silently', () => {
     expect(isDirty(newDocument('sales', 'new.md', 'x'))).toBe(true)
+  })
+})
+
+describe('canReload', () => {
+  const saved = () =>
+    openDocument('sales', 'a.md', { content: 'x\n', hash: 'h1' })
+
+  test('takes the server copy over an untouched document', () => {
+    expect(canReload(saved())).toBe(true)
+  })
+
+  test('refuses to replace an unsaved draft', () => {
+    expect(canReload(withDraft(saved(), 'mine\n'))).toBe(false)
+  })
+
+  test('refuses a new file, whose draft exists nowhere else', () => {
+    expect(canReload(newDocument('sales', 'new.md', 'x'))).toBe(false)
+  })
+
+  test('has nothing to do when no document is open', () => {
+    expect(canReload(undefined)).toBe(false)
   })
 })
 

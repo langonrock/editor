@@ -124,6 +124,39 @@ describe('the document', () => {
 
     expect(state.panel).toBe('editor')
   })
+
+  test('reloading replaces the document but leaves the panel alone', () => {
+    const fresh = openDocument('sales', 'a.md', {
+      content: 'theirs\n',
+      hash: 'h2'
+    })
+    const state = play(
+      [
+        { type: 'opened', document: opened() },
+        { type: 'panel', panel: 'graph' },
+        { type: 'reloaded', document: fresh }
+      ],
+      ready()
+    )
+
+    expect(state.document?.baseHash).toBe('h2')
+    expect(state.panel).toBe('graph')
+  })
+})
+
+describe('staleness after a reload', () => {
+  test('the banner comes down when the listing is answered', () => {
+    const state = play(
+      [
+        { type: 'stale', stale: true },
+        { type: 'entries', entries: [] },
+        { type: 'stale', stale: false }
+      ],
+      ready()
+    )
+
+    expect(state.stale).toBe(false)
+  })
 })
 
 describe('conflicts', () => {
