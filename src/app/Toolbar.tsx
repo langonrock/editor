@@ -1,4 +1,5 @@
 import { TransferBar } from '../transfer/TransferBar.tsx'
+import { toggleTheme, useTheme } from './theme.ts'
 
 import type { Panel } from './reducer.ts'
 import type { ManifestRow } from '../okf/types.ts'
@@ -18,6 +19,8 @@ interface Props {
 }
 
 export function Toolbar(props: Props) {
+  const theme = useTheme()
+
   return (
     <nav>
       {PANELS.map(panel => (
@@ -30,15 +33,25 @@ export function Toolbar(props: Props) {
           {panel}
         </button>
       ))}
-      {props.knowledge === undefined ? null : (
-        <TransferBar
-          knowledge={props.knowledge}
-          entries={props.entries}
-          rows={props.rows}
-          canWrite={props.writable}
-          onDone={props.onNotice}
-        />
-      )}
+      <div className="tools">
+        {props.knowledge === undefined ? null : (
+          <TransferBar
+            knowledge={props.knowledge}
+            entries={props.entries}
+            rows={props.rows}
+            canWrite={props.writable}
+            onDone={props.onNotice}
+          />
+        )}
+        <button
+          type="button"
+          className="theme"
+          title={`Switch to the ${theme === 'dark' ? 'light' : 'dark'} theme`}
+          onClick={toggleTheme}
+        >
+          {theme === 'dark' ? '☀' : '☾'}
+        </button>
+      </div>
     </nav>
   )
 }

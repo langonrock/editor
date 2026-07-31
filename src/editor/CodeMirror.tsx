@@ -1,16 +1,25 @@
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { markdown } from '@codemirror/lang-markdown'
-import { EditorState } from '@codemirror/state'
+import { Compartment, EditorState } from '@codemirror/state'
 import { EditorView, keymap, lineNumbers } from '@codemirror/view'
 import { useEffect, useRef } from 'react'
 
 import { useLatest } from '../app/useLatest.ts'
+import { useTheme } from '../app/theme.ts'
 
 interface Props {
   value: string
   readOnly?: boolean
   onChange?: (value: string) => void
 }
+
+/**
+ * The base theme picks a caret colour per variant — black under `&light`, white
+ * under `&dark` — so an editor that never says which one it is in gets an
+ * invisible caret on one of the two palettes. It goes in a compartment because
+ * rebuilding the view to restyle it would throw away the undo history.
+ */
+const PALETTE = new Compartment()
 
 /**
  * Plain-text editing on purpose. The ETag the whole write cycle rests on is a
@@ -21,6 +30,7 @@ export function CodeMirror({ value, readOnly = false, onChange }: Props) {
   const host = useRef<HTMLDivElement>(null)
   const view = useRef<EditorView>(null)
   const notify = useLatest(onChange)
+  const dark = useTheme() === 'dark'
 
   useEffect(() => {
     if (host.current === null) {
@@ -37,10 +47,7 @@ export function CodeMirror({ value, readOnly = false, onChange }: Props) {
           keymap.of([...defaultKeymap, ...historyKeymap]),
           markdown(),
           EditorView.lineWrapping,
-          // Until something declares otherwise the base theme applies its light
-          // variant, whose `caret-color: black` is invisible against this app's
-          // background: the caret is there and typing works, but nothing shows.
-          EditorView.darkTheme.of(true),
+          PALETTE.of(EditorView.darkTheme.of(dark)),
           EditorState.readOnly.of(readOnly),
           EditorView.updateListener.of(update => {
             if (update.docChanged) {
@@ -58,6 +65,12 @@ export function CodeMirror({ value, readOnly = false, onChange }: Props) {
     // only seeded here and reconciled below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readOnly])
+
+  useEffect(() => {
+    view.current?.dispatch({
+      effects: PALETTE.reconfigure(EditorView.darkTheme.of(dark))
+    })
+  }, [dark])
 
   useEffect(() => {
     const editor = view.current

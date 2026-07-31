@@ -3,10 +3,24 @@
   --panel: #161b22;
   --line: #30363d;
   --text: #c9d1d9;
+  --strong: #fff;
   --muted: #8b949e;
   --accent: #4c8eda;
   --warn: #f0883e;
   color-scheme: dark;
+}
+
+/* Set by src/app/theme.ts before the first paint. */
+:root[data-theme='light'] {
+  --bg: #fff;
+  --panel: #eef1f4;
+  --line: #d0d7de;
+  --text: #1f2328;
+  --strong: #000;
+  --muted: #59636e;
+  --accent: #0969da;
+  --warn: #bc4c00;
+  color-scheme: light;
 }
 
 * {
@@ -79,13 +93,23 @@ nav {
 
 .tab.active {
   border-color: var(--accent);
-  color: #fff;
+  color: var(--strong);
+}
+
+.tools {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
 }
 
 .transfer {
   display: flex;
   gap: 6px;
-  margin-left: auto;
+}
+
+/* Fixed so the toolbar does not shift when the glyph changes. */
+.theme {
+  min-width: 34px;
 }
 
 main {
@@ -126,7 +150,7 @@ main > * {
 .node.selected {
   background: var(--panel);
   border-radius: 4px;
-  color: #fff;
+  color: var(--strong);
 }
 
 .icon {
