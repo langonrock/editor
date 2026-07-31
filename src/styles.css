@@ -112,6 +112,45 @@ nav {
   min-width: 34px;
 }
 
+.connection {
+  border-color: var(--accent);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profiles {
+  display: grid;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.profiles li {
+  display: flex;
+  gap: 4px;
+}
+
+.profiles li > button:first-child {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  text-align: left;
+}
+
+.profiles span {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.forget {
+  color: var(--muted);
+}
+
 main {
   display: grid;
   grid-template-columns: 260px 1fr 300px;

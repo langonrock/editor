@@ -5,15 +5,17 @@ import { createSnapshotPoller } from '../connection/watch.ts'
 import { createSyncScheduler } from '../connection/sync.ts'
 import { merge3 } from '../editor/merge.ts'
 import { newDocument, openDocument, rebase } from '../editor/document.ts'
+import { loadSecret, saveSecret } from '../secrets/keychain.ts'
 import { openSession } from '../connection/session.ts'
 import { parseManifest } from '../okf/manifest.ts'
-import { pickFolder, startLocal } from '../local/sidecar.ts'
+import { profileId } from '../profiles/profile.ts'
 import { saveDocument } from '../editor/save.ts'
-import { saveSecret } from '../secrets/keychain.ts'
+import { startLocal, stopLocal } from '../local/sidecar.ts'
 
 import type { RefObject } from 'react'
 import type { Action, AppState } from './reducer.ts'
 import type { EditorDocument } from '../editor/document.ts'
+import type { Profile } from '../profiles/profile.ts'
 import type { Session } from '../connection/session.ts'
 import type { SyncScheduler } from '../connection/sync.ts'
 
@@ -55,7 +57,7 @@ function useAttach(wiring: Wiring, refresh: () => Promise<void>) {
   const { session, scheduler, dispatch } = wiring
 
   return useCallback(
-    async (dsn: string) => {
+    async (dsn: string, profile: Profile) => {
       dispatch({ type: 'connecting' })
 
       try {
@@ -74,7 +76,8 @@ function useAttach(wiring: Wiring, refresh: () => Promise<void>) {
         dispatch({
           type: 'connected',
           access: live.access,
-          entries: live.entries
+          entries: live.entries,
+          profile
         })
         await refresh()
       } catch (cause) {
@@ -85,40 +88,65 @@ function useAttach(wiring: Wiring, refresh: () => Promise<void>) {
   )
 }
 
+/**
+ * A saved connection carries no token, so reopening one reads it back out of
+ * the keychain. Only a token typed just now is written, and a keychain that
+ * refuses to store is not a reason to refuse to connect.
+ */
+async function dsnFor(
+  profile: Profile,
+  token: string | undefined,
+  remember: boolean
+): Promise<string> {
+  if (profile.kind === 'local') {
+    const handle = await startLocal(profile.target)
+
+    return buildLocalDsn(handle.port, handle.token)
+  }
+
+  const account = profileId(profile)
+  const secret = token ?? (await loadSecret(account))
+
+  if (secret === null || secret === '') {
+    throw new Error('no token is saved for this connection: enter one below')
+  }
+
+  if (token !== undefined && remember) {
+    await saveSecret(account, token).catch(() => undefined)
+  }
+
+  return buildRemoteDsn(profile.target, secret)
+}
+
 export function useConnect(wiring: Wiring, refresh: () => Promise<void>) {
   const { dispatch } = wiring
   const attach = useAttach(wiring, refresh)
 
-  const connectLocal = useCallback(async () => {
-    const folder = await pickFolder()
+  return useCallback(
+    async (profile: Profile, token?: string, remember = true) => {
+      dispatch({ type: 'connecting' })
 
-    if (folder === null) {
-      return
-    }
-
-    dispatch({ type: 'connecting' })
-
-    try {
-      const handle = await startLocal(folder)
-
-      await attach(buildLocalDsn(handle.port, handle.token))
-    } catch (cause) {
-      dispatch({ type: 'failed', error: messageOf(cause) })
-    }
-  }, [attach, dispatch])
-
-  const connectRemote = useCallback(
-    async (host: string, token: string, remember: boolean) => {
-      if (remember) {
-        await saveSecret(host, token).catch(() => undefined)
+      try {
+        await attach(await dsnFor(profile, token, remember), profile)
+      } catch (cause) {
+        dispatch({ type: 'failed', error: messageOf(cause) })
       }
-
-      await attach(buildRemoteDsn(host, token))
     },
-    [attach]
+    [attach, dispatch]
   )
+}
 
-  return { connectLocal, connectRemote }
+export function useDisconnect({ session, scheduler, dispatch }: Wiring) {
+  return useCallback(async () => {
+    scheduler.current?.close()
+    scheduler.current = null
+    await session.current?.close().catch(() => undefined)
+    session.current = null
+    // A no-op when the connection was remote: the supervisor stops whatever it
+    // is holding, and for a remote session that is nothing.
+    await stopLocal().catch(() => undefined)
+    dispatch({ type: 'disconnected' })
+  }, [session, scheduler, dispatch])
 }
 
 export function useOpen({ session, dispatch }: Wiring) {

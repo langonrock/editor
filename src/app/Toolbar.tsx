@@ -3,6 +3,7 @@ import { toggleTheme, useTheme } from './theme.ts'
 
 import type { Panel } from './reducer.ts'
 import type { ManifestRow } from '../okf/types.ts'
+import type { Profile } from '../profiles/profile.ts'
 import type { ImportTarget } from '../transfer/runner.ts'
 import type { Connection, SourceEntry } from 'langonrock/client'
 
@@ -14,8 +15,10 @@ interface Props {
   entries: SourceEntry[]
   rows: ManifestRow[]
   writable: boolean
+  connection?: Profile | undefined
   onPanel: (panel: Panel) => void
   onNotice: (message: string) => void
+  onDisconnect: () => void
 }
 
 export function Toolbar(props: Props) {
@@ -34,6 +37,16 @@ export function Toolbar(props: Props) {
         </button>
       ))}
       <div className="tools">
+        {props.connection === undefined ? null : (
+          <button
+            type="button"
+            className="connection"
+            title={`Connected to ${props.connection.target} — switch`}
+            onClick={props.onDisconnect}
+          >
+            {props.connection.name}
+          </button>
+        )}
         {props.knowledge === undefined ? null : (
           <TransferBar
             knowledge={props.knowledge}

@@ -37,6 +37,8 @@ Releases are not code-signed yet, so the first launch needs one extra step: on m
 
 **A remote server.** Enter the host and a bearer token. Anything but a loopback address must be `https`, because the token would otherwise cross the network in clear text. langonrock does not serve TLS itself, so terminate it at a reverse proxy (Caddy, nginx, Cloudflare). Tokens are kept in the system keychain when one is available.
 
+**Saved connections.** Both kinds are remembered by name, most recently used first, and reopening one is a click. Only the name and the folder or host are stored; the token stays in the keychain and is read back when you connect. The name of the live connection sits in the toolbar, and clicking it disconnects and returns to the list — that is how you switch. Two connections may share a host and carry different tokens, so a read-only login and a writable one can live side by side.
+
 A token that may read but not write is not visible until a save is refused — the source listing does not check writability. The app reports that state when it learns it. A store with no `sources.json` is read-only from the moment you connect, and is reported immediately.
 
 Bundles must be laid out as `<folder>/<bundle>/<concept>.md`. Markdown sitting at the top level of the folder compiles to nothing.

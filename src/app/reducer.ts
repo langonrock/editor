@@ -4,6 +4,7 @@ import type { Failure } from '../connection/errors.ts'
 import type { StoreAccess } from '../connection/session.ts'
 import type { EditorDocument } from '../editor/document.ts'
 import type { ManifestRow } from '../okf/types.ts'
+import type { Profile } from '../profiles/profile.ts'
 import type { SourceEntry } from 'langonrock/client'
 import type { Diagnostic } from '../connection/session.ts'
 
@@ -25,6 +26,8 @@ export interface Conflict {
 export interface AppState {
   phase: 'idle' | 'connecting' | 'ready'
   error?: string | undefined
+  /** Which saved connection is live, so the window can say so and switch. */
+  connection?: Profile | undefined
   access: StoreAccess
   /**
    * A read-only token is invisible until the first save is refused, so unlike
@@ -58,7 +61,12 @@ export const initialState: AppState = {
 
 export type Action =
   | { type: 'connecting' }
-  | { type: 'connected'; access: StoreAccess; entries: SourceEntry[] }
+  | {
+      type: 'connected'
+      access: StoreAccess
+      entries: SourceEntry[]
+      profile: Profile
+    }
   | { type: 'failed'; error: string }
   | { type: 'disconnected' }
   | { type: 'entries'; entries: SourceEntry[] }
@@ -94,6 +102,7 @@ const HANDLERS = {
     phase: 'ready',
     access: action.access,
     entries: action.entries,
+    connection: action.profile,
     error: undefined
   }),
   failed: (state, action) => ({ ...state, phase: 'idle', error: action.error }),

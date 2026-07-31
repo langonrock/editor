@@ -4,6 +4,7 @@ import { openDocument } from '../../src/editor/document.ts'
 import { canWrite, initialState, reduce } from '../../src/app/reducer.ts'
 
 import type { Action, AppState } from '../../src/app/reducer.ts'
+import type { Profile } from '../../src/profiles/profile.ts'
 
 const play = (actions: Action[], from: AppState = initialState): AppState =>
   actions.reduce(reduce, from)
@@ -11,10 +12,16 @@ const play = (actions: Action[], from: AppState = initialState): AppState =>
 const opened = () =>
   openDocument('sales', 'a.md', { content: 'base\n', hash: 'h1' })
 
+const PROFILE: Profile = {
+  kind: 'remote',
+  target: 'kb.example.com',
+  name: 'kb'
+}
+
 const ready = () =>
   play([
     { type: 'connecting' },
-    { type: 'connected', access: 'writable', entries: [] }
+    { type: 'connected', access: 'writable', entries: [], profile: PROFILE }
   ])
 
 describe('connecting', () => {
@@ -40,13 +47,18 @@ describe('connecting', () => {
     )
 
     expect(state).toEqual(initialState)
+    expect(state.connection).toBeUndefined()
+  })
+
+  test('the live connection is named so the window can offer to switch', () => {
+    expect(ready().connection).toEqual(PROFILE)
   })
 })
 
 describe('writability', () => {
   test('a read-only store cannot be written to', () => {
     const state = play([
-      { type: 'connected', access: 'read-only', entries: [] }
+      { type: 'connected', access: 'read-only', entries: [], profile: PROFILE }
     ])
 
     expect(canWrite(state)).toBe(false)

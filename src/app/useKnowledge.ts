@@ -3,6 +3,7 @@ import { useReducer, useRef } from 'react'
 import { initialState, reduce } from './reducer.ts'
 import {
   useConnect,
+  useDisconnect,
   useOpen,
   usePersist,
   useRefresh,
@@ -28,7 +29,6 @@ export function useKnowledge() {
   const wiring: Wiring = { session, scheduler, dispatch }
 
   const refresh = useRefresh(wiring)
-  const { connectLocal, connectRemote } = useConnect(wiring, refresh)
   const persist = usePersist(wiring)
 
   useStalePoller(wiring, state.phase)
@@ -36,8 +36,8 @@ export function useKnowledge() {
   return {
     state,
     dispatch,
-    connectLocal,
-    connectRemote,
+    connect: useConnect(wiring, refresh),
+    disconnect: useDisconnect(wiring),
     refresh,
     persist,
     open: useOpen(wiring),

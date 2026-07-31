@@ -48,9 +48,8 @@ export function App() {
       <ConnectDialog
         busy={state.phase === 'connecting'}
         error={state.error}
-        onLocal={() => void app.connectLocal()}
-        onRemote={(host, token, remember) =>
-          void app.connectRemote(host, token, remember)
+        onConnect={(profile, token, remember) =>
+          void app.connect(profile, token, remember)
         }
       />
     )
@@ -64,8 +63,10 @@ export function App() {
         entries={state.entries}
         rows={state.rows}
         writable={writable}
+        connection={state.connection}
         onPanel={panel => dispatch({ type: 'panel', panel })}
         onNotice={notice => dispatch({ type: 'notice', notice })}
+        onDisconnect={() => void app.disconnect()}
       />
 
       <Banners
