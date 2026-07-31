@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+src-tauri/target/
+src-tauri/binaries/
+src-tauri/gen/
+.DS_Store
+.agents/
+CLAUDE.md

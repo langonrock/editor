@@ -1,0 +1,15 @@
+[test]
+coverage = true
+coverageSkipTestFiles = true
+# These must be globs: a bare prefix like "node_modules/" is silently ignored.
+# Both dependency entries are needed. `bun link` reports the symlink target, so
+# langonrock shows up as ../langonrock/src/... and never matches node_modules;
+# once it is consumed as a published package the first pattern is the one that
+# catches it. Either way the threshold must measure this project, not its
+# dependency.
+coveragePathIgnorePatterns = [
+  "**/node_modules/**",
+  "**/langonrock/**",
+  "test/**"
+]
+coverageThreshold = { line = 0.85, function = 0.85 }
