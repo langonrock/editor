@@ -28,6 +28,12 @@
   "bundle": {
     "active": true,
     "targets": ["dmg", "app", "nsis", "deb", "appimage"],
+    "publisher": "Henrique Breim",
+    "homepage": "https://github.com/langonrock/editor",
+    "copyright": "Copyright © 2026 Henrique Breim",
+    "licenseFile": "../LICENSE",
+    "category": "DeveloperTool",
+    "shortDescription": "Editor, visualizer, importer and exporter for OKF knowledge bundles",
     "externalBin": ["binaries/langonrock"],
     "icon": [
       "icons/32x32.png",

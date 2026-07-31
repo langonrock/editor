@@ -5,6 +5,13 @@
   "type": "module",
   "private": true,
   "license": "MIT",
+  "author": "Henrique Breim",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/langonrock/editor.git"
+  },
+  "homepage": "https://github.com/langonrock/editor",
+  "bugs": "https://github.com/langonrock/editor/issues",
   "engines": {
     "bun": ">=1.3.0"
   },

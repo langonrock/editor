@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Desktop editor, visualizer, importer and exporter for OKF knowledge bundles"
 authors = ["Henrique Breim"]
 license = "MIT"
+repository = "https://github.com/langonrock/editor"
 edition = "2021"
 rust-version = "1.77.2"
 
