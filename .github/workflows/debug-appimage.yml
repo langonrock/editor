@@ -1,6 +1,6 @@
-# Temporary: probes why ldd fails on the bun-compiled sidecar, which is what
-# aborts linuxdeploy during appimage bundling. Delete once the release
-# workflow is green.
+# Temporary: lets the appimage bundling fail, then inspects the AppDir to see
+# why ldd rejects the sidecar copy there while accepting the original. Delete
+# once the release workflow is green.
 name: debug-appimage
 
 on:
@@ -24,6 +24,15 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev \
+            librsvg2-dev patchelf libsoup-3.0-dev libfuse2
+
       - run: bun install && bun link
         working-directory: .langonrock
 
@@ -31,15 +40,25 @@ jobs:
 
       - run: bun run sidecar
 
-      - name: Probe the sidecar
+      - name: Build until bundling fails
+        run: bun run tauri build --verbose || true
+        env:
+          NO_STRIP: true
+
+      - name: Autopsy the AppDir
         shell: bash {0}
         run: |
-          BIN=src-tauri/binaries/langonrock-x86_64-unknown-linux-gnu
-          ls -la src-tauri/binaries/
-          file "$BIN"
-          echo "===== ldd output:"
-          ldd "$BIN"
-          echo "ldd exit: $?"
-          echo "===== does it execute:"
-          timeout 3 "$BIN" --version
-          echo "run exit: $?"
+          APPDIR=src-tauri/target/release/bundle/appimage/langoneditor.AppDir
+          SIDECAR="$APPDIR/usr/bin/langonrock"
+          echo "===== bin dir:"
+          ls -la "$APPDIR/usr/bin/"
+          echo "===== same bytes as the built sidecar?"
+          cmp src-tauri/binaries/langonrock-x86_64-unknown-linux-gnu "$SIDECAR" && echo identical || echo DIFFERS
+          echo "===== rpath on the sidecar copy:"
+          readelf -d "$SIDECAR" | grep -i 'rpath\|runpath'
+          echo "===== plain ldd:"
+          ldd "$SIDECAR"
+          echo "plain ldd exit: $?"
+          echo "===== ldd with the AppDir lib path, as linuxdeploy resolves it:"
+          LD_LIBRARY_PATH="$APPDIR/usr/lib:$APPDIR/usr/lib/x86_64-linux-gnu" ldd "$SIDECAR"
+          echo "appdir ldd exit: $?"
