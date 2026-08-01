@@ -48,12 +48,16 @@ jobs:
           workspaces: src-tauri
 
       # libfuse2 is not in the runner image, and linuxdeploy is itself an
-      # AppImage that needs FUSE 2 to execute.
+      # AppImage that needs FUSE 2 to execute. The extra patchelf replaces the
+      # one bundled inside linuxdeploy, which corrupts bun's single-file
+      # sidecar when rewriting its rpath.
       - if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev \
             librsvg2-dev patchelf libsoup-3.0-dev libfuse2
+          curl -sL https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz \
+            | sudo tar xz -C /usr/local ./bin/patchelf
 
       - run: bun install && bun link
         working-directory: .langonrock
@@ -79,6 +83,9 @@ jobs:
           # linuxdeploy's strip pass fails on Rust release binaries, which
           # surfaces only as `failed to run linuxdeploy`.
           NO_STRIP: true
+          # Makes linuxdeploy use the modern patchelf installed above instead
+          # of its bundled one; inert outside linux.
+          PATCHELF: /usr/local/bin/patchelf
           # The .dmg ships unsigned, so Gatekeeper warns on first open. To sign
           # and notarize, add the APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD,
           # APPLE_SIGNING_IDENTITY, APPLE_ID, APPLE_PASSWORD and APPLE_TEAM_ID
