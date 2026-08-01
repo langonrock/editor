@@ -1,13 +1,13 @@
-# Temporary: checks whether patchelf is what corrupts the bun-compiled
-# sidecar, and whether a modern patchelf avoids it. Delete once the release
-# workflow is green.
+# Temporary: validates that pointing linuxdeploy at a modern patchelf via the
+# PATCHELF env var fixes appimage bundling. Delete once the release workflow
+# is green.
 name: debug-appimage
 
 on:
   workflow_dispatch:
 
 jobs:
-  probe:
+  bundle:
     runs-on: ubuntu-22.04
 
     steps:
@@ -24,7 +24,16 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - run: sudo apt-get update && sudo apt-get install -y patchelf
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev \
+            librsvg2-dev patchelf libsoup-3.0-dev libfuse2
+          curl -sL https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz \
+            | sudo tar xz -C /usr/local ./bin/patchelf
 
       - run: bun install && bun link
         working-directory: .langonrock
@@ -33,26 +42,14 @@ jobs:
 
       - run: bun run sidecar
 
-      - name: Patch with apt patchelf vs modern patchelf
-        shell: bash {0}
+      - run: bun run tauri build --verbose
+        env:
+          NO_STRIP: true
+          PATCHELF: /usr/local/bin/patchelf
+
+      - name: Verify the bundled sidecar still works
         run: |
-          BIN=src-tauri/binaries/langonrock-x86_64-unknown-linux-gnu
-          probe() {
-            ldd "$1" > /dev/null 2>&1
-            echo "$2 ldd exit: $?"
-            timeout 3 "$1" --version > /dev/null 2>&1
-            echo "$2 run exit: $?"
-          }
-
-          echo "===== apt patchelf $(patchelf --version):"
-          cp "$BIN" /tmp/a
-          patchelf --set-rpath '$ORIGIN/../lib' /tmp/a && probe /tmp/a "apt-patched"
-
-          curl -sL https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz | tar xz -C /tmp ./bin/patchelf
-          echo "===== modern patchelf $(/tmp/bin/patchelf --version):"
-          cp "$BIN" /tmp/b
-          /tmp/bin/patchelf --set-rpath '$ORIGIN/../lib' /tmp/b && probe /tmp/b "modern-patched"
-
-          echo "===== modern then apt again, in case linuxdeploy re-patches:"
-          cp /tmp/b /tmp/c
-          patchelf --set-rpath '$ORIGIN/../lib' /tmp/c && probe /tmp/c "re-patched"
+          ls -la src-tauri/target/release/bundle/appimage/
+          APPDIR=src-tauri/target/release/bundle/appimage/langoneditor.AppDir
+          ldd "$APPDIR/usr/bin/langonrock" > /dev/null
+          timeout 3 "$APPDIR/usr/bin/langonrock" --version
