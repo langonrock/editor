@@ -96,6 +96,7 @@ const eslintConfig = defineConfig([
     'dist/**',
     'coverage/**',
     'node_modules/**',
+    '.langonrock/**',
     'src-tauri/target/**',
     'src-tauri/gen/**'
   ])
