@@ -1,6 +1,6 @@
 [package]
 name = "langoneditor"
-version = "0.1.0"
+version = "0.1.1"
 description = "Desktop editor, visualizer, importer and exporter for OKF knowledge bundles"
 authors = ["Henrique Breim"]
 license = "MIT"
