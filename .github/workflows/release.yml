@@ -74,14 +74,12 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Without a Developer ID the .dmg is unsigned and Gatekeeper blocks it
-          # on download. Set these to sign and notarize.
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # The .dmg ships unsigned, so Gatekeeper warns on first open. To sign
+          # and notarize, add the APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD,
+          # APPLE_SIGNING_IDENTITY, APPLE_ID, APPLE_PASSWORD and APPLE_TEAM_ID
+          # secrets and pass them here as env. Tauri treats the mere presence of
+          # APPLE_CERTIFICATE as intent to sign, so the env must stay out until
+          # the secrets exist.
         with:
           tagName: ${{ github.ref_name }}
           releaseName: langoneditor ${{ github.ref_name }}
