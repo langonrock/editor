@@ -47,11 +47,13 @@ jobs:
         with:
           workspaces: src-tauri
 
+      # libfuse2 is not in the runner image, and linuxdeploy is itself an
+      # AppImage that needs FUSE 2 to execute.
       - if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev \
-            librsvg2-dev patchelf libsoup-3.0-dev
+            librsvg2-dev patchelf libsoup-3.0-dev libfuse2
 
       - run: bun install && bun link
         working-directory: .langonrock
@@ -74,6 +76,9 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # linuxdeploy's strip pass fails on Rust release binaries, which
+          # surfaces only as `failed to run linuxdeploy`.
+          NO_STRIP: true
           # The .dmg ships unsigned, so Gatekeeper warns on first open. To sign
           # and notarize, add the APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD,
           # APPLE_SIGNING_IDENTITY, APPLE_ID, APPLE_PASSWORD and APPLE_TEAM_ID
