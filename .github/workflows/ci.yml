@@ -18,12 +18,11 @@ jobs:
 
       # langonrock is consumed as a local link, so it has to exist on disk
       # before `bun install` can resolve it. Publishing it to a registry would
-      # remove this step and the token it needs.
+      # remove this step.
       - uses: actions/checkout@v5
         with:
           repository: ${{ github.repository_owner }}/langonrock
           path: .langonrock
-          token: ${{ secrets.LANGONROCK_TOKEN }}
 
       - uses: oven-sh/setup-bun@v2
         with:

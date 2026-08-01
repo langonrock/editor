@@ -34,7 +34,6 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/langonrock
           path: .langonrock
-          token: ${{ secrets.LANGONROCK_TOKEN }}
 
       - uses: oven-sh/setup-bun@v2
         with:
