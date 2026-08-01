@@ -56,6 +56,8 @@ describe('packOkf and unpackOkf', () => {
     expect(unpackOkf(archive).map(file => file.name)).toEqual(['a/small.md'])
   })
 
+  // Compressing 250 MB takes over 5s on the slowest CI runners, so the
+  // default per-test timeout is not enough.
   test('refuses an archive that expands past the total limit', () => {
     // Highly compressible, so the archive is small and the expansion is not.
     const archive = zipSync({
@@ -63,7 +65,7 @@ describe('packOkf and unpackOkf', () => {
     })
 
     expect(() => unpackOkf(archive)).toThrow('200 MB limit')
-  })
+  }, 20000)
 
   test('packs an empty selection into a readable empty archive', () => {
     expect(unpackOkf(packOkf([]))).toEqual([])
