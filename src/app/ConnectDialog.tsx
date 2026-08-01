@@ -118,7 +118,7 @@ export function ConnectDialog({ busy, error, onConnect }: Props) {
   return (
     <div className="overlay">
       <div className="dialog">
-        <h1>langoneditor</h1>
+        <h1>Lang on Editor</h1>
 
         <ProfileList
           profiles={profiles}
