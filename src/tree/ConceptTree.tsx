@@ -1,5 +1,8 @@
+import { File, FileText, Folder, Package } from 'lucide-react'
+
 import { buildTree } from './tree.ts'
 
+import type { LucideIcon } from 'lucide-react'
 import type { TreeNode } from './tree.ts'
 import type { SourceEntry } from 'langonrock/client'
 
@@ -9,11 +12,11 @@ interface Props {
   onOpen: (bundle: string, path: string) => void
 }
 
-const ICON: Record<TreeNode['kind'], string> = {
-  bundle: '▣',
-  folder: '▸',
-  concept: '◆',
-  file: '·'
+const ICON: Record<TreeNode['kind'], LucideIcon> = {
+  bundle: Package,
+  folder: Folder,
+  concept: FileText,
+  file: File
 }
 
 function Node({
@@ -27,6 +30,7 @@ function Node({
 }) {
   const key = `${node.bundle}/${node.path}`
   const isLeaf = node.kind === 'concept' || node.kind === 'file'
+  const Glyph = ICON[node.kind]
 
   return (
     <li>
@@ -38,7 +42,9 @@ function Node({
         title={node.kind === 'file' ? 'not a concept: no frontmatter' : node.id}
         onClick={() => isLeaf && onOpen(node.bundle, node.path)}
       >
-        <span className={`icon ${node.kind}`}>{ICON[node.kind]}</span>
+        <span className={`icon ${node.kind}`}>
+          <Glyph />
+        </span>
         {node.name}
       </button>
       {node.children.length === 0 ? null : (

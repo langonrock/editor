@@ -54,6 +54,7 @@
     "d3-dsv": "^3.0.1",
     "fflate": "^0.8.3",
     "langonrock": "link:langonrock",
+    "lucide-react": "^1.28.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "yaml": "^2.8.1"

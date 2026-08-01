@@ -1,3 +1,5 @@
+import { FolderOpen, Server, X } from 'lucide-react'
+
 import { profileId } from './profile.ts'
 
 import type { Profile } from './profile.ts'
@@ -25,10 +27,10 @@ export function ProfileList({ profiles, busy, onOpen, onForget }: Props) {
               disabled={busy}
               onClick={() => onOpen(profile)}
             >
-              <strong>{profile.name}</strong>
+              {profile.kind === 'local' ? <FolderOpen /> : <Server />}
               <span>
-                {profile.kind === 'local' ? 'folder' : 'server'} ·{' '}
-                {profile.target}
+                <strong>{profile.name}</strong>
+                <em>{profile.target}</em>
               </span>
             </button>
             <button
@@ -37,7 +39,7 @@ export function ProfileList({ profiles, busy, onOpen, onForget }: Props) {
               title={`Forget ${profile.name}`}
               onClick={() => onForget(profile)}
             >
-              ✕
+              <X />
             </button>
           </li>
         ))}

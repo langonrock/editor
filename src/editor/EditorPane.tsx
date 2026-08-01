@@ -1,3 +1,5 @@
+import { Save, Trash2 } from 'lucide-react'
+
 import { byteLength } from '../okf/paths.ts'
 import { CodeMirror } from './CodeMirror.tsx'
 import { FrontmatterForm } from './FrontmatterForm.tsx'
@@ -51,6 +53,7 @@ export function EditorPane({
           onClick={onDelete}
           disabled={readOnly || isNew(document)}
         >
+          <Trash2 />
           Delete
         </button>
         <button
@@ -59,6 +62,7 @@ export function EditorPane({
           onClick={onSave}
           disabled={readOnly || !isDirty(document)}
         >
+          <Save />
           Save
         </button>
       </header>

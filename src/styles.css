@@ -38,13 +38,24 @@ body {
 }
 
 button {
+  align-items: center;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 5px;
   color: var(--text);
   cursor: pointer;
+  display: inline-flex;
   font: inherit;
+  gap: 6px;
   padding: 5px 10px;
+}
+
+/* Lucide ships 24px glyphs, which is twice the type size of this window. Sized
+   here rather than per call site so no icon can be added at the wrong scale. */
+svg.lucide {
+  flex-shrink: 0;
+  height: 14px;
+  width: 14px;
 }
 
 button:disabled {
@@ -114,10 +125,6 @@ nav {
 
 .connection {
   border-color: var(--accent);
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .profiles {
@@ -134,14 +141,22 @@ nav {
 }
 
 .profiles li > button:first-child {
-  display: grid;
   flex: 1;
-  gap: 2px;
+  justify-content: flex-start;
   text-align: left;
 }
 
+/* min-width lets the grid shrink below its content, which is what allows the
+   target line to ellipsize instead of stretching the dialog. */
 .profiles span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.profiles em {
   color: var(--muted);
+  font-style: normal;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

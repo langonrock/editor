@@ -1,3 +1,4 @@
+import { Download, Upload } from 'lucide-react'
 import { useState } from 'react'
 
 import { exportManifest } from './csvexport.ts'
@@ -122,6 +123,7 @@ export function TransferBar({
         disabled={busy}
         onClick={() => void guard(() => exportZip(knowledge, entries))}
       >
+        <Download />
         Export zip
       </button>
       <button
@@ -129,6 +131,7 @@ export function TransferBar({
         disabled={busy}
         onClick={() => void guard(() => exportCsv(rows))}
       >
+        <Download />
         Export CSV
       </button>
       <button
@@ -136,6 +139,7 @@ export function TransferBar({
         disabled={busy || !canWrite}
         onClick={() => void guard(() => runFrom(knowledge, entries, ['zip']))}
       >
+        <Upload />
         Import zip
       </button>
       <button
@@ -145,6 +149,7 @@ export function TransferBar({
           void guard(() => runFrom(knowledge, entries, ['csv', 'tsv', 'txt']))
         }
       >
+        <Upload />
         Import CSV
       </button>
     </div>

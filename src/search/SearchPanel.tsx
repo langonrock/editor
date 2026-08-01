@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react'
 import { useState } from 'react'
 
 import { isLinkedOnly, parseSearch } from './query.ts'
@@ -40,7 +41,10 @@ export function SearchPanel({ onSearch, onSelect }: Props) {
           placeholder="Search concepts"
           onChange={event => setQuery(event.target.value)}
         />
-        <button type="submit">Search</button>
+        <button type="submit">
+          <Search />
+          Search
+        </button>
       </form>
 
       {error === undefined ? null : <p className="warn">{error}</p>}
