@@ -15,7 +15,7 @@ const entry = (bundle: string, path: string, id?: string): SourceEntry => ({
 const ENTRIES = [
   entry('sales', 'tables/orders.md', 'orders'),
   entry('sales', 'tables/customers.md', 'customers'),
-  entry('sales', 'README.md'),
+  entry('sales', 'index.md'),
   entry('sales', 'metrics/revenue.md', 'revenue'),
   entry('ops', 'runbooks/deploy.md', 'deploy')
 ]
@@ -31,7 +31,7 @@ describe('buildTree', () => {
     expect(sales?.children.map(node => `${node.kind}:${node.name}`)).toEqual([
       'folder:metrics',
       'folder:tables',
-      'file:README.md'
+      'file:index.md'
     ])
   })
 
@@ -44,11 +44,11 @@ describe('buildTree', () => {
     ])
   })
 
-  test('shows a file with no id as an ordinary file rather than hiding it', () => {
-    const readme = buildTree(ENTRIES)[1]?.children[2]
+  test('shows a navigation file as an ordinary file rather than hiding it', () => {
+    const navigation = buildTree(ENTRIES)[1]?.children[2]
 
-    expect(readme?.kind).toBe('file')
-    expect(readme?.id).toBeUndefined()
+    expect(navigation?.kind).toBe('file')
+    expect(navigation?.id).toBeUndefined()
   })
 
   test('gives every node the bundle-relative path a write needs', () => {

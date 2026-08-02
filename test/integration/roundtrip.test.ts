@@ -95,18 +95,27 @@ describe('the id that joins a file to its manifest row', () => {
     expect(revenue?.bundle).toBe('sales')
   })
 
-  test('a file with no frontmatter has none, marking it a non-concept', async () => {
-    await knowledge.writeSource('sales', 'README.md', '# Not a concept\n')
+  test('plain markdown compiles to a concept like any other file', async () => {
+    await knowledge.writeSource('sales', 'README.md', '# No frontmatter\n')
     await knowledge.sync()
 
     const entries = await knowledge.listSource()
 
-    expect(entries.find(e => e.path === 'README.md')?.id).toBeUndefined()
+    expect(entries.find(e => e.path === 'README.md')?.id).toBe('README')
+  })
+
+  test('a navigation file is the only kind that carries no id', async () => {
+    await knowledge.writeSource('sales', 'index.md', '# Navigation\n')
+    await knowledge.sync()
+
+    const entries = await knowledge.listSource()
+
+    expect(entries.find(e => e.path === 'index.md')?.id).toBeUndefined()
   })
 })
 
 describe('the lint the editor shows', () => {
-  test('sync reports a missing type, a broken link and a skipped file', async () => {
+  test('sync reports a missing type, a broken link and plain markdown', async () => {
     await knowledge.writeSource(
       'sales',
       'metrics/broken.md',
@@ -117,7 +126,9 @@ describe('the lint the editor shows', () => {
 
     expect(messages).toContain('missing required frontmatter field "type"')
     expect(messages.some(m => m.includes('unresolved link'))).toBe(true)
-    expect(messages.some(m => m.includes('no frontmatter'))).toBe(true)
+    expect(messages.some(m => m.includes('compiled as plain markdown'))).toBe(
+      true
+    )
   })
 })
 

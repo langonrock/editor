@@ -1,8 +1,11 @@
 import type { StylesheetJson } from 'cytoscape'
 
 /**
- * Deprecated concepts are dimmed rather than hidden. A link into something on
- * its way out is exactly what a reader needs to notice.
+ * Concepts the reader should hesitate over are marked rather than hidden. A
+ * link into something on its way out is exactly what a reader needs to notice,
+ * so `deprecated` greys out and a concept past its `stale_after` date turns
+ * amber: expired is a different warning from withdrawn, and a status the graph
+ * left unpainted would be a status the graph hid.
  *
  * Cytoscape paints to a canvas and never resolves CSS custom properties, so the
  * two colours that have to follow the palette are chosen here. The node fills
@@ -28,6 +31,10 @@ export function graphStyle(dark: boolean): StylesheetJson {
     {
       selector: 'node[status = "deprecated"]',
       style: { 'background-color': '#8b949e', opacity: 0.5 }
+    },
+    {
+      selector: 'node[status = "stale"]',
+      style: { 'background-color': '#d29922' }
     },
     {
       selector: 'node:selected',
