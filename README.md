@@ -5,7 +5,7 @@
 
 A desktop editor, visualizer, importer and exporter for [OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog) knowledge bundles. Runs on macOS (Apple silicon and Intel), Windows and Linux.
 
-OKF is a directory of Markdown files with YAML frontmatter. [langonrock](https://github.com/langonrock/langonrock) compiles those bundles into a dense manifest and serves them over HTTP. This app is the human-facing half: browse the tree, edit concepts, see the link graph, search, and move bundles in and out as archives or spreadsheets.
+OKF is a directory of Markdown files with YAML frontmatter. [langonrock](https://github.com/langonrock/langonrock) compiles any folder of Markdown into a dense manifest and serves it over HTTP, with frontmatter as the conformance bar rather than the price of admission. This app is the human-facing half: browse the tree, edit concepts, see the link graph, search, and move bundles in and out as archives or spreadsheets.
 
 Everything the compiler knows stays in the compiler. The editor derives no ids, resolves no links and reproduces no lint rules — it asks the server and shows the answer, so the two cannot drift apart.
 
@@ -13,9 +13,9 @@ Everything the compiler knows stays in the compiler. The editor derives no ids, 
 
 - **Edit** concepts as plain Markdown, with a form for the frontmatter fields the compiler keeps. Untouched keys — `tags`, nested `sources`, comments — survive byte for byte.
 - **Visualize** the link graph, sized by degree, and jump from a node straight to the file it compiled from.
-- **Search** with the server's BM25 index, showing which hits matched and which were reached by a link.
+- **Search** with the server's BM25 index, showing which hits matched, which were reached by a link, and the passage inside each hit that the query landed on.
 - **Import and export** a whole bundle as a zip, or a set of concepts as CSV/TSV.
-- **Show the compiler's lint** — a missing `type`, an unresolved link, a file skipped for having no frontmatter — as reported by the server rather than reproduced here.
+- **Show the compiler's lint** — a missing `type`, an unresolved link, a file compiled without frontmatter — as reported by the server rather than reproduced here.
 
 ## Install
 
