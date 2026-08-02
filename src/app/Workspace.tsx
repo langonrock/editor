@@ -17,6 +17,7 @@ interface Props {
   onSave: () => void
   onDelete: () => void
   onSearch: (query: string) => Promise<string>
+  onPassage: (id: string, offset: number) => Promise<string>
 }
 
 function selectionOf(state: AppState): string | undefined {
@@ -65,7 +66,11 @@ export function Workspace(props: Props) {
           <GraphView rows={state.rows} onSelect={props.openById} />
         ) : null}
         {state.panel === 'search' ? (
-          <SearchPanel onSearch={props.onSearch} onSelect={props.openById} />
+          <SearchPanel
+            onSearch={props.onSearch}
+            onPassage={props.onPassage}
+            onSelect={props.openById}
+          />
         ) : null}
       </section>
 

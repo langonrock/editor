@@ -14,6 +14,10 @@ function cell(row: string[], columns: string[], name: string): string {
 function toRow(line: string, columns: string[]): ManifestRow {
   const values = line.split('\t')
   const links = cell(values, columns, 'links')
+  // An empty cell and a zero offset are different answers: a hit whose passage
+  // starts at the top of the document is located, not unlocated.
+  const located = cell(values, columns, 'pos')
+  const pos = Number(located)
 
   return {
     id: cell(values, columns, 'id'),
@@ -22,15 +26,17 @@ function toRow(line: string, columns: string[]): ManifestRow {
     status: cell(values, columns, 'status'),
     grain: cell(values, columns, 'grain'),
     summary: cell(values, columns, 'summary'),
-    links: links === '' ? [] : links.split(' ')
+    links: links === '' ? [] : links.split(' '),
+    ...(located !== '' && Number.isFinite(pos) ? { pos } : {})
   }
 }
 
 /**
- * One parser for every TSV the server produces. A bundle-filtered manifest and
- * a search result carry the same header and differ only in which comment lines
- * precede it, so reading the columns by name rather than by position covers all
- * three without branching on which one arrived.
+ * One parser for every TSV the server produces. The headers are not identical
+ * — a search result appends a `pos` column the manifest has no use for, and
+ * the comment lines above them differ — so every cell is read by column name.
+ * Reading by position would have broken the moment `pos` arrived, and would
+ * break again on the next column. Do not simplify this back.
  */
 export function parseManifest(tsv: string): Manifest {
   const lines = tsv.split('\n').filter(line => line !== '')

@@ -87,6 +87,7 @@ export function App() {
         onSave={() => document && void app.persist(document)}
         onDelete={() => document && void app.remove(document)}
         onSearch={app.search}
+        onPassage={app.passage}
       />
 
       {conflict === undefined || document === undefined ? null : (

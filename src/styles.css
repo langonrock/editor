@@ -314,6 +314,13 @@ main > * {
   color: var(--muted);
 }
 
+/* The words that matched, not the summary the row carries for any query. */
+.results .passage {
+  border-left: 2px solid var(--line);
+  font-size: 12px;
+  padding-left: 6px;
+}
+
 .linked {
   color: var(--warn);
   font-size: 11px;
