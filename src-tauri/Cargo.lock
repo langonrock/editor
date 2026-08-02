@@ -1986,7 +1986,7 @@ dependencies = [
 
 [[package]]
 name = "langoneditor"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "keyring",
  "rand 0.8.7",
