@@ -5,6 +5,7 @@ import {
   useConnect,
   useDisconnect,
   useOpen,
+  usePassage,
   usePersist,
   useRefresh,
   useReload,
@@ -46,6 +47,7 @@ export function useKnowledge() {
     resolve: useResolve(wiring, persist),
     remove: useRemove(wiring),
     search: useSearch(wiring),
+    passage: usePassage(wiring),
     knowledge: () => session.current?.knowledge
   }
 }

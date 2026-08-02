@@ -8,7 +8,11 @@ export interface TreeNode {
   path: string
   bundle: string
   kind: NodeKind
-  /** The manifest id this file compiles to. Absent means it is not a concept. */
+  /**
+   * The manifest id this file compiles to. Absent means the compiler treats
+   * the file as navigation rather than knowledge, which is `index.md` and
+   * `log.md` and nothing else.
+   */
   id?: string
   children: TreeNode[]
 }
@@ -50,9 +54,10 @@ function insert(root: TreeNode, entry: SourceEntry): void {
     name,
     path: entry.path,
     bundle: entry.bundle,
-    // A file with no id carries no frontmatter, so the compiler skipped it.
-    // Showing it as an ordinary file is how a cloned repo's README appears as
-    // what it is instead of vanishing with no explanation.
+    // Frontmatter stopped deciding this: plain markdown compiles to a concept
+    // now, so the only files left without an id are OKF navigation. Showing
+    // them as ordinary files is how they appear as what they are instead of
+    // vanishing from the tree with no explanation.
     kind: entry.id === undefined ? 'file' : 'concept',
     ...(entry.id === undefined ? {} : { id: entry.id }),
     children: []

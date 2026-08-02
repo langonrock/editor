@@ -1,3 +1,4 @@
+import { FIND_WINDOW } from 'langonrock/client'
 import { useCallback, useEffect } from 'react'
 
 import { buildLocalDsn, buildRemoteDsn } from '../connection/dsn.ts'
@@ -317,6 +318,31 @@ export function useSearch({ session }: Wiring) {
       }
 
       return live.knowledge.search(query)
+    },
+    [session]
+  )
+}
+
+/**
+ * The window a search hit's `pos` offset opens. `FIND_WINDOW` comes from the
+ * server package so the size the offset was chosen for and the size asked for
+ * here cannot drift apart.
+ */
+export function usePassage({ session }: Wiring) {
+  return useCallback(
+    async (id: string, offset: number) => {
+      const live = session.current
+
+      if (live === null) {
+        throw new Error('not connected')
+      }
+
+      const found = await live.knowledge.get([id], {
+        offset,
+        limit: FIND_WINDOW
+      })
+
+      return found.get(id)?.text ?? ''
     },
     [session]
   )

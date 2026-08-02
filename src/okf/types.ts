@@ -23,6 +23,12 @@ export interface ManifestRow {
   grain: string
   summary: string
   links: string[]
+  /**
+   * Where the query's words cluster densest in the body, for reading the
+   * passage instead of the document. Only search results carry it, and only
+   * on hits the query matched in the text rather than in the row.
+   */
+  pos?: number
 }
 
 export interface Manifest {

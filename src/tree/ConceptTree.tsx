@@ -37,9 +37,10 @@ function Node({
       <button
         type="button"
         className={selected === key && isLeaf ? 'node selected' : 'node'}
-        // A file with no id carries no frontmatter, so the compiler ignored it.
         // It stays clickable: seeing why it is not a concept is the point.
-        title={node.kind === 'file' ? 'not a concept: no frontmatter' : node.id}
+        title={
+          node.kind === 'file' ? 'not a concept: navigation file' : node.id
+        }
         onClick={() => isLeaf && onOpen(node.bundle, node.path)}
       >
         <span className={`icon ${node.kind}`}>
